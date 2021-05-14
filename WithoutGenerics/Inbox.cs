@@ -16,7 +16,7 @@ namespace WithoutGenerics
 
         private void Print(string input)
         {
-            // print the input
+            Console.WriteLine(input);
         }
     }
 }
