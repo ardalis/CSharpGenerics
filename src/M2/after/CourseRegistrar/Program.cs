@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Threading;
 
 namespace CourseRegistrar
 {
@@ -16,9 +17,9 @@ namespace CourseRegistrar
             Console.WriteLine("Adding students to waitlist...");
 
             waitlist.Add("student1@test.test");
-            waitlist.Add(Guid.NewGuid());
+            waitlist.Add(Guid.NewGuid()); // boxing
             waitlist.Add("student2@test.test");
-            waitlist.Add(Guid.NewGuid());
+            waitlist.Add(Guid.NewGuid()); // boxing
             waitlist.Add("student3@test.test");
 
             // course has open seats
@@ -32,7 +33,7 @@ namespace CourseRegistrar
                 {
                     Console.WriteLine($"Emailing {studentEmail} to let them know about opening.");
                 }
-                if(item is Guid registrationCode)
+                if(item is Guid registrationCode) // unboxing
                 {
                     Console.WriteLine($"Registering student with code {registrationCode}.");
                 }
@@ -40,6 +41,21 @@ namespace CourseRegistrar
 
             Console.WriteLine("Finished.");
             Console.ReadLine();
+        }
+
+        private static void ProcessWaitlistItem(WaitlistItem item)
+        {
+            if(item.NotifyAndWait)
+            {
+                Console.WriteLine($"Emailing {item.StudentEmail} to let them know about opening.");
+                Thread.Sleep(15);
+                return;
+            }
+
+            if (item is ReservationWaitlistItem reservation)
+            {
+                Console.WriteLine($"Registering student with code {reservation.ReservationCode}.");
+            }
         }
     }
 
@@ -100,11 +116,13 @@ namespace CourseRegistrar
     public class WaitlistItem
     {
         public string StudentEmail { get; set; }
+        public virtual bool NotifyAndWait { get => true; }
     }
 
     public class ReservationWaitlistItem : WaitlistItem
     {
         public Guid ReservationCode { get; set; }
+        public override bool NotifyAndWait => false;
     }
 
 }
