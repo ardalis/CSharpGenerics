@@ -47,11 +47,12 @@ namespace Interfaces
             // sort
             Array.Sort(authors);
 
-            Console.WriteLine("Authors:");
-            for (int i = 0; i < authors.Length; i++)
-            {
-                Console.WriteLine(authors[i]);
-            }
+            writer.WriteAuthors(authors);
+            //Console.WriteLine("Authors:");
+            //for (int i = 0; i < authors.Length; i++)
+            //{
+            //    Console.WriteLine(authors[i]);
+            //}
         }
     }
 
@@ -63,6 +64,14 @@ namespace Interfaces
             foreach (var student in students)
             {
                 Console.WriteLine(student);
+            }
+        }
+        public void WriteAuthors(IEnumerable<Author> authors)
+        {
+            Console.WriteLine("Authors:");
+            foreach (var author in authors)
+            {
+                Console.WriteLine(author);
             }
         }
     }
