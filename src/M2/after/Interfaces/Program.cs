@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Interfaces
 {
@@ -24,11 +25,15 @@ namespace Interfaces
             // sort
             Array.Sort(students);
 
-            Console.WriteLine("Students:");
-            for (int i = 0; i < students.Length; i++)
-            {
-                Console.WriteLine(students[i]); // runtime error if no IComparable
-            }
+            var writer = new ConsoleWriter();
+
+            writer.WriteStudents(students);
+
+            //Console.WriteLine("Students:");
+            //for (int i = 0; i < students.Length; i++)
+            //{
+            //    Console.WriteLine(students[i]); // runtime error if no IComparable
+            //}
 
             Console.WriteLine();
 
@@ -46,6 +51,18 @@ namespace Interfaces
             for (int i = 0; i < authors.Length; i++)
             {
                 Console.WriteLine(authors[i]);
+            }
+        }
+    }
+
+    public class ConsoleWriter
+    {
+        public void WriteStudents(IEnumerable<Student> students)
+        {
+            Console.WriteLine("Students:");
+            foreach (var student in students)
+            {
+                Console.WriteLine(student);
             }
         }
     }
