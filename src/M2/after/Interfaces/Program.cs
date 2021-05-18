@@ -66,6 +66,7 @@ namespace Interfaces
                 Console.WriteLine(student);
             }
         }
+
         public void WriteAuthors(IEnumerable<Author> authors)
         {
             Console.WriteLine("Authors:");
