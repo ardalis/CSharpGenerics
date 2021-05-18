@@ -24,9 +24,28 @@ namespace Interfaces
             // sort
             Array.Sort(students);
 
+            Console.WriteLine("Students:");
             for (int i = 0; i < students.Length; i++)
             {
                 Console.WriteLine(students[i]); // runtime error if no IComparable
+            }
+
+            Console.WriteLine();
+
+            // create a bunch of Authors
+            var authors = new Author[10];
+            for (int i = 0; i < students.Length; i++)
+            {
+                authors[i] = new Author(students[i].FirstName, students[i].LastName);
+            }
+
+            // sort
+            Array.Sort(authors);
+
+            Console.WriteLine("Authors:");
+            for (int i = 0; i < authors.Length; i++)
+            {
+                Console.WriteLine(authors[i]);
             }
         }
     }
@@ -45,15 +64,43 @@ namespace Interfaces
         {
             if (obj is null) return 1;
 
-            if(obj is Student otherStudent)
+            if (obj is Student otherStudent)
             {
-                if(otherStudent.LastName == this.LastName)
+                if (otherStudent.LastName == this.LastName)
                 {
                     return this.FirstName.CompareTo(otherStudent.FirstName);
                 }
                 return this.LastName.CompareTo(otherStudent.LastName);
             }
             throw new ArgumentException("Not a Student", nameof(obj));
+        }
+
+        public override string ToString()
+        {
+            return $"{FirstName} {LastName}";
+        }
+    }
+
+    public class Author : IComparable
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+
+        public Author(string firstName, string lastName)
+        {
+            FirstName = firstName;
+            LastName = lastName;
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (obj is null) return 1;
+
+            if (obj is Author otherAuthor)
+            {
+                return this.ToString().CompareTo(otherAuthor.ToString());
+            }
+            throw new ArgumentException("Not an Author", nameof(obj));
         }
 
         public override string ToString()
