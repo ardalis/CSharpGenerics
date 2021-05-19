@@ -41,6 +41,9 @@ namespace Interfaces
         }
     }
 
+
+
+
     // public interface IStudentRepository
     // {
     //     Student[] List();
@@ -54,6 +57,9 @@ namespace Interfaces
     {
         T[] List();
     }
+
+
+
 
 
     public class StudentRepository : IRepository<Student>
