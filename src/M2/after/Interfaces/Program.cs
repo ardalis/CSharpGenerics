@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Interfaces
 {
@@ -9,6 +8,58 @@ namespace Interfaces
         {
             Console.WriteLine("Hello World!");
 
+            var studentService = new StudentPrinterService(new StudentRepository());
+            studentService.PrintStudents();
+
+            Console.WriteLine();
+
+            var authorService = new AuthorPrinterService(new AuthorRepository());
+            authorService.PrintAuthors();
+        }
+    }
+
+    public class StudentPrinterService
+    {
+        private readonly IRepository<Student> _studentRepository;
+        public StudentPrinterService(IRepository<Student> studentRepository)
+        {
+            _studentRepository = studentRepository;
+        }
+
+        public void PrintStudents()
+        {
+            var students = _studentRepository.List();
+
+            // sort
+            Array.Sort(students);
+
+            Console.WriteLine("Students:");
+            for (int i = 0; i < students.Length; i++)
+            {
+                Console.WriteLine(students[i]);
+            }
+        }
+    }
+
+    // public interface IStudentRepository
+    // {
+    //     Student[] List();
+    // }
+    // public interface IAuthorRepository
+    // {
+    //     Author[] List();
+    // }
+
+    public interface IRepository<T>
+    {
+        T[] List();
+    }
+
+
+    public class StudentRepository : IRepository<Student>
+    {
+        public Student[] List()
+        {
             // create a bunch of students
             var students = new Student[10];
             students[0] = new Student("Steve", "Smith");
@@ -21,63 +72,11 @@ namespace Interfaces
             students[7] = new Student("Aaron", "Stewart");
             students[8] = new Student("Aaron", "Powell");
             students[9] = new Student("Aaron", "Frost");
-
-            // sort
-            Array.Sort(students);
-
-            var writer = new ConsoleWriter();
-
-            writer.WriteStudents(students);
-
-            //Console.WriteLine("Students:");
-            //for (int i = 0; i < students.Length; i++)
-            //{
-            //    Console.WriteLine(students[i]); // runtime error if no IComparable
-            //}
-
-            Console.WriteLine();
-
-            // create a bunch of Authors
-            var authors = new Author[10];
-            for (int i = 0; i < students.Length; i++)
-            {
-                authors[i] = new Author(students[i].FirstName, students[i].LastName);
-            }
-
-            // sort
-            Array.Sort(authors);
-
-            writer.WriteAuthors(authors);
-            //Console.WriteLine("Authors:");
-            //for (int i = 0; i < authors.Length; i++)
-            //{
-            //    Console.WriteLine(authors[i]);
-            //}
+            return students;
         }
     }
 
-    public class ConsoleWriter
-    {
-        public void WriteStudents(IEnumerable<Student> students)
-        {
-            Console.WriteLine("Students:");
-            foreach (var student in students)
-            {
-                Console.WriteLine(student);
-            }
-        }
-
-        public void WriteAuthors(IEnumerable<Author> authors)
-        {
-            Console.WriteLine("Authors:");
-            foreach (var author in authors)
-            {
-                Console.WriteLine(author);
-            }
-        }
-    }
-
-    public class Student : IComparable
+    public class Student : IComparable<Student>
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -87,28 +86,67 @@ namespace Interfaces
             LastName = lastName;
         }
 
-        public int CompareTo(object obj)
-        {
-            if (obj is null) return 1;
-
-            if (obj is Student otherStudent)
-            {
-                if (otherStudent.LastName == this.LastName)
-                {
-                    return this.FirstName.CompareTo(otherStudent.FirstName);
-                }
-                return this.LastName.CompareTo(otherStudent.LastName);
-            }
-            throw new ArgumentException("Not a Student", nameof(obj));
-        }
-
         public override string ToString()
         {
             return $"{FirstName} {LastName}";
         }
+
+        public int CompareTo(Student other)
+        {
+            if (other is null) return 1;
+            if (other.LastName == this.LastName)
+            {
+                return this.FirstName.CompareTo(other.FirstName);
+            }
+            return this.LastName.CompareTo(other.LastName);
+        }
     }
 
-    public class Author : IComparable
+    public class AuthorPrinterService
+    {
+        private readonly IRepository<Author> _authorRepository;
+
+        public AuthorPrinterService(IRepository<Author> authorRepository)
+        {
+            _authorRepository = authorRepository;
+        }
+
+        public void PrintAuthors()
+        {
+            var authors = _authorRepository.List();
+
+            // sort
+            Array.Sort(authors);
+
+            Console.WriteLine("Authors:");
+            for (int i = 0; i < authors.Length; i++)
+            {
+                Console.WriteLine(authors[i]);
+            }
+        }
+    }
+
+    public class AuthorRepository : IRepository<Author>
+    {
+        public Author[] List()
+        {
+            // create a bunch of authors
+            var authors = new Author[10];
+            authors[0] = new Author("Steve", "Smith");
+            authors[1] = new Author("Chad", "Smith");
+            authors[2] = new Author("Ben", "Smith");
+            authors[3] = new Author("Eric", "Smith");
+            authors[4] = new Author("Julie", "Lerman");
+            authors[5] = new Author("David", "Starr");
+            authors[6] = new Author("Aaron", "Skonnard");
+            authors[7] = new Author("Aaron", "Stewart");
+            authors[8] = new Author("Aaron", "Powell");
+            authors[9] = new Author("Aaron", "Frost");
+            return authors;
+        }
+    }
+
+    public class Author : IComparable<Author>
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -133,6 +171,13 @@ namespace Interfaces
         public override string ToString()
         {
             return $"{FirstName} {LastName}";
+        }
+
+        public int CompareTo(Author other)
+        {
+            if (other is null) return 1;
+
+            return this.ToString().CompareTo(other.ToString());
         }
     }
 }
