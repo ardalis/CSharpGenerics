@@ -41,26 +41,10 @@ namespace Interfaces
         }
     }
 
-
-
-
-    // public interface IStudentRepository
-    // {
-    //     Student[] List();
-    // }
-    // public interface IAuthorRepository
-    // {
-    //     Author[] List();
-    // }
-
     public interface IRepository<T>
     {
         T[] List();
     }
-
-
-
-
 
     public class StudentRepository : IRepository<Student>
     {
