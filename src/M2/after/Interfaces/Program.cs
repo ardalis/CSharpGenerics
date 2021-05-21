@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Interfaces
 {
@@ -9,12 +11,15 @@ namespace Interfaces
             Console.WriteLine("Hello World!");
 
             var studentService = new StudentPrinterService(new StudentRepository());
-            studentService.PrintStudents();
+            studentService.PrintStudents(5);
 
             Console.WriteLine();
 
-            var authorService = new AuthorPrinterService(new AuthorRepository());
-            authorService.PrintAuthors();
+            // var authorService = new AuthorPrinterService(new AuthorRepository());
+            // authorService.PrintAuthors();
+
+            Console.WriteLine($"Total Students Created: {Student.StudentCount}");
+
         }
     }
 
@@ -26,54 +31,80 @@ namespace Interfaces
             _studentRepository = studentRepository;
         }
 
-        public void PrintStudents()
+        public void PrintStudents(int max = 100)
         {
-            var students = _studentRepository.List();
+            var students = _studentRepository.List()
+                .Take(max)
+            .ToArray();
 
             // sort
-            Array.Sort(students);
+            //Array.Sort(students);
 
+            // Console.WriteLine("Students:");
+            // for (int i = 0; i < students.Length; i++)
+            // {
+            //     Console.WriteLine(students[i]);
+            // }
+            PrintStudentsToConsole(students);
+        }
+
+        private void PrintStudentsToConsole(IEnumerable<Student> students)
+        {
             Console.WriteLine("Students:");
-            for (int i = 0; i < students.Length; i++)
+            foreach (var student in students)
             {
-                Console.WriteLine(students[i]);
+                Console.WriteLine(student);
             }
         }
     }
 
     public interface IRepository<T>
     {
-        T[] List();
+        IEnumerable<T> List();
     }
+
+    public record Name(string First, string Last);
 
     public class StudentRepository : IRepository<Student>
     {
-        public Student[] List()
+        private Name[] _names = new Name[10];
+
+        public StudentRepository()
         {
-            // create a bunch of students
-            var students = new Student[10];
-            students[0] = new Student("Steve", "Smith");
-            students[1] = new Student("Chad", "Smith");
-            students[2] = new Student("Ben", "Smith");
-            students[3] = new Student("Eric", "Smith");
-            students[4] = new Student("Julie", "Lerman");
-            students[5] = new Student("David", "Starr");
-            students[6] = new Student("Aaron", "Skonnard");
-            students[7] = new Student("Aaron", "Stewart");
-            students[8] = new Student("Aaron", "Powell");
-            students[9] = new Student("Aaron", "Frost");
-            return students;
+            _names[0] = new("Steve", "Smith");
+            _names[1] = new("Chad", "Smith");
+            _names[2] = new("Ben", "Smith");
+            _names[3] = new("Eric", "Smith");
+            _names[4] = new("Julie", "Lerman");
+            _names[5] = new("David", "Starr");
+            _names[6] = new("Aaron", "Skonnard");
+            _names[7] = new("Aaron", "Stewart");
+            _names[8] = new("Aaron", "Powell");
+            _names[9] = new("Aaron", "Frost");
+        }
+
+        public IEnumerable<Student> List()
+        {
+            int index = 0;
+            while (index < _names.Length)
+            {
+                yield return new Student(_names[index].First, _names[index].Last);
+                index++;
+            }
         }
     }
 
     public class Student : IComparable<Student>
     {
+        public static int StudentCount = 0;
+
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public Student(string firstName, string lastName)
         {
             FirstName = firstName;
             LastName = lastName;
+            StudentCount++;
         }
 
         public override string ToString()
@@ -103,7 +134,7 @@ namespace Interfaces
 
         public void PrintAuthors()
         {
-            var authors = _authorRepository.List();
+            var authors = _authorRepository.List().ToArray();
 
             // sort
             Array.Sort(authors);
@@ -118,7 +149,7 @@ namespace Interfaces
 
     public class AuthorRepository : IRepository<Author>
     {
-        public Author[] List()
+        public IEnumerable<Author> List()
         {
             // create a bunch of authors
             var authors = new Author[10];
