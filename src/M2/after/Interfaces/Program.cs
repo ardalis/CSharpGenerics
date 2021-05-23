@@ -17,35 +17,48 @@ namespace Interfaces
 
             // var authorService = new AuthorPrinterService(new AuthorRepository());
             // authorService.PrintAuthors();
-
-            Console.WriteLine($"Total Students Created: {Student.StudentCount}");
-
         }
+    }
+
+    public interface IRepository<T> where T : IComparable<T>
+    {
+        IEnumerable<T> List();
+        IEnumerable<T> SortedList();
+
+    }
+
+    public interface IPersonRepository<T> : IRepository<T> where T : Person, IComparable<T>, new()
+    {
+        IEnumerable<T> Search(string name);
+        T Create(Name name);
+        T CreateDefault();
+    }
+
+    public interface IPersonRepository
+    {
+        IEnumerable<T> Search<T>(string name) where T : Person;
+        T Create<T>(Name name) where T : Person;
+        T CreateDefault<T>() where T : Person, new();
     }
 
     public class StudentPrinterService
     {
-        private readonly IRepository<Student> _studentRepository;
-        public StudentPrinterService(IRepository<Student> studentRepository)
+        private readonly IPersonRepository<Student> _studentRepository;
+        public StudentPrinterService(IPersonRepository<Student> studentRepository)
         {
             _studentRepository = studentRepository;
         }
 
         public void PrintStudents(int max = 100)
         {
-            var students = _studentRepository.List()
+            var students = _studentRepository.SortedList()
                 .Take(max)
             .ToArray();
 
-            // sort
-            //Array.Sort(students);
-
-            // Console.WriteLine("Students:");
-            // for (int i = 0; i < students.Length; i++)
-            // {
-            //     Console.WriteLine(students[i]);
-            // }
             PrintStudentsToConsole(students);
+
+            var smiths = _studentRepository.Search("Smith");
+            PrintSmithsToConsole(smiths);
         }
 
         private void PrintStudentsToConsole(IEnumerable<Student> students)
@@ -56,16 +69,19 @@ namespace Interfaces
                 Console.WriteLine(student);
             }
         }
-    }
-
-    public interface IRepository<T>
-    {
-        IEnumerable<T> List();
+        private void PrintSmithsToConsole(IEnumerable<Student> students)
+        {
+            Console.WriteLine("Smiths:");
+            foreach (var student in students)
+            {
+                Console.WriteLine(student);
+            }
+        }
     }
 
     public record Name(string First, string Last);
 
-    public class StudentRepository : IRepository<Student>
+    public class StudentRepository : IPersonRepository<Student>
     {
         private Name[] _names = new Name[10];
 
@@ -83,6 +99,16 @@ namespace Interfaces
             _names[9] = new("Aaron", "Frost");
         }
 
+        public Student Create(Name name)
+        {
+            return new Student(name.First, name.Last);
+        }
+
+        public Student CreateDefault()
+        {
+            return new Student();
+        }
+
         public IEnumerable<Student> List()
         {
             int index = 0;
@@ -92,19 +118,37 @@ namespace Interfaces
                 index++;
             }
         }
+
+        public IEnumerable<Student> Search(string name)
+        {
+            return List().Where(student => student.FirstName.Contains(name) ||
+            student.LastName.Contains(name));
+        }
+
+        public IEnumerable<Student> SortedList()
+        {
+            var students = List().ToList();
+            students.Sort();
+            return students;
+        }
     }
 
-    public class Student : IComparable<Student>
+    public abstract class Person
     {
-        public static int StudentCount = 0;
-
         public string FirstName { get; set; }
         public string LastName { get; set; }
+    }
+
+    public class Student : Person, IComparable<Student>
+    {
         public Student(string firstName, string lastName)
         {
             FirstName = firstName;
             LastName = lastName;
-            StudentCount++;
+        }
+
+        public Student() : this("FirstName", "LastName")
+        {
         }
 
         public override string ToString()
@@ -165,13 +209,15 @@ namespace Interfaces
             authors[9] = new Author("Aaron", "Frost");
             return authors;
         }
+
+        public IEnumerable<Author> SortedList()
+        {
+            throw new NotImplementedException();
+        }
     }
 
-    public class Author : IComparable<Author>
+    public class Author : Person, IComparable<Author>
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-
         public Author(string firstName, string lastName)
         {
             FirstName = firstName;
