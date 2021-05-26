@@ -1,15 +1,11 @@
-﻿using System;
+using System;
 
-namespace ArdalisContainer.ConsoleApp
+namespace ReflectionVariance.ConsoleApp
 {
-    class Program
+    internal class VarianceSamples
     {
-        static void Main(string[] args)
+        public static void Execute()
         {
-            Console.WriteLine("Reflecting on Generic Types and Methods");
-
-            ReflectionSamples.Execute();
-
             Console.WriteLine("Variance in C# types and generic types:");
 
             var handler = new Handler();
@@ -52,7 +48,7 @@ namespace ArdalisContainer.ConsoleApp
 
             // Method3
             handler = Method3();
-            requestHandler = Method3(); // Cannot convert H to RH
+            //requestHandler = Method3(); // Cannot convert H to RH
             handler = Method4();
             requestHandler = Method4();
 
@@ -76,29 +72,6 @@ namespace ArdalisContainer.ConsoleApp
         public static RequestHandler Method4() { return null; }
         public static void ProcessBase(IHandler<BaseCommand> handler) { }
         public static void ProcessSpecial(IHandler<SpecialCommand> handler) { }
-    }
 
-    public interface IHandler { }
-    public class Handler : IHandler { }
-
-    public class RequestHandler : Handler { }
-
-    public interface IEndpoint<TRequest, TResponse>
-    {
-        TResponse Handle(TRequest request);
     }
-
-    public interface IHandler<TCommand>
-    {
-        void Handle(TCommand command);
-    }
-    public class Handler<TCommand> : IHandler<TCommand>
-    {
-        public void Handle(TCommand command)
-        {
-        }
-    }
-    public class BaseCommand { }
-    public class SpecialCommand : BaseCommand { }
 }
-

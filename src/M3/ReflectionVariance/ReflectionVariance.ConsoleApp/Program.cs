@@ -9,6 +9,8 @@ namespace ReflectionVariance.ConsoleApp
             Console.WriteLine("Reflection and Variance with @ardalis!");
 
             ReflectionSamples.Execute();
+
+            VarianceSamples.Execute();
         }
     }
 

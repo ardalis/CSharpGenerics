@@ -137,6 +137,29 @@ namespace ReflectionVariance.ConsoleApp
         }
     }
 
+        public interface IHandler { }
+    public class Handler : IHandler { }
+
+    public class RequestHandler : Handler { }
+
+    public interface IEndpoint<TRequest, TResponse>
+    {
+        TResponse Handle(TRequest request);
+    }
+
+    public interface IHandler<TCommand>
+    {
+        void Handle(TCommand command);
+    }
+    public class Handler<TCommand> : IHandler<TCommand>
+    {
+        public void Handle(TCommand command)
+        {
+        }
+    }
+    public class BaseCommand { }
+    public class SpecialCommand : BaseCommand { }
+
     public abstract class BaseRequest { }
     public interface IPipeline<TInput, TOutput>
         where TInput : BaseRequest
@@ -165,4 +188,6 @@ namespace ReflectionVariance.ConsoleApp
         {
         }
     }
+
+
 }
