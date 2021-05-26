@@ -11,32 +11,88 @@ namespace ReflectionVariance.ConsoleApp
         {
             var types = new List<Type>
             {
-                typeof(IProcessor<>),
-                typeof(IProcessor<Customer>),
-                typeof(Processor<>),
-                typeof(Processor<Customer>),
-                typeof(CustomerProcessor)
+                // typeof(IProcessor<>),
+                // typeof(IProcessor<Customer>),
+                // typeof(Processor<>),
+                // typeof(Processor<Customer>),
+                // typeof(CustomerProcessor)
+                typeof(IPipeline<,>)
             };
             ListTypeDetails(types);
 
             // methods
             // var methods = typeof(IProcessor<>).GetMethods();
 
+            // Create a Pipeline Instance
+            Type[] typeArguments = { typeof(Request), typeof(Response) };
+
+            var specificType = typeof(Pipeline<,>).MakeGenericType(typeArguments);
+
+            var createdInstance = Activator.CreateInstance(specificType);
+
+            ListTypeDetails(new List<Type> { createdInstance.GetType() });
+
+            ((dynamic)createdInstance).DoWork(new Request());
         }
 
         private static void ListTypeDetails(List<Type> types)
         {
             Console.WriteLine("Type Name".PadRight(20) + "|" + "IsGenericType?".PadRight(20) + "|" +
-                "IsGenericDefinition?".PadRight(20));
+                "IsGenericDefinition?".PadRight(20) + "|" + "Generic Arguments");
             foreach (var type in types)
             {
                 string output = type.Name.PadRight(20) + "|";
                 output += type.IsGenericType.ToString().PadRight(20) + "|";
-                output += type.IsGenericTypeDefinition;
+                output += type.IsGenericTypeDefinition.ToString().PadRight(20) + "|";
+                output += type.GetGenericArguments().Count();
                 Console.WriteLine(output);
-                ListGenericMethods(type);
-                Console.WriteLine(output);
+                ListParameterDetails(type);
+                // ListGenericMethods(type);
+                // Console.WriteLine(output);
             }
+        }
+
+        private static void ListParameterDetails(Type type)
+        {
+            var parameters = type.GetGenericArguments();
+
+            foreach (var parameter in parameters)
+            {
+                if (parameter.IsGenericParameter)
+                {
+                    DisplayGenericParameter(parameter);
+                }
+                else
+                {
+                    DisplayTypeArgument(parameter);
+                }
+            }
+        }
+
+        private static void DisplayGenericParameter(Type parameter)
+        {
+            var constraints = parameter.GetGenericParameterConstraints();
+
+            Console.WriteLine($"  Type parameter (position, name, constraints, attributeMask): {parameter.GenericParameterPosition}, {parameter.Name}, {constraints.Count()}, {parameter.GenericParameterAttributes}");
+
+            if (constraints.Any())
+            {
+                Console.WriteLine("    Constraint Name |Interface? |Class? |Enum? ");
+                foreach (var constraint in constraints)
+                {
+                    Console.WriteLine("    " + constraint.Name.PadRight(16) + "|" +
+                        constraint.IsInterface.ToString().PadRight(11) + "|" +
+                        constraint.IsClass.ToString().PadRight(7) + "|" +
+                        constraint.IsEnum.ToString().PadRight(6)
+                        );
+                }
+
+            }
+        }
+
+        private static void DisplayTypeArgument(Type parameter)
+        {
+            Console.WriteLine($"  Type argument: {parameter.Name}");
         }
 
         private static void ListGenericMethods(Type type)
@@ -78,6 +134,35 @@ namespace ReflectionVariance.ConsoleApp
                 }
             }
             Console.WriteLine();
+        }
+    }
+
+    public abstract class BaseRequest { }
+    public interface IPipeline<TInput, TOutput>
+        where TInput : BaseRequest
+        where TOutput : IDisposable, new()
+    {
+        TOutput DoWork(TInput request);
+    }
+
+    public class Pipeline<TInput, TOutput> : IPipeline<TInput, TOutput>
+            where TInput : BaseRequest
+            where TOutput : IDisposable, new()
+    {
+        public TOutput DoWork(TInput request)
+        {
+            var response = new TOutput();
+            Console.WriteLine($"Got request : {request}; returning response: {response}");
+            return response;
+        }
+    }
+
+
+    public class Request : BaseRequest { }
+    public class Response : IDisposable
+    {
+        public void Dispose()
+        {
         }
     }
 }
