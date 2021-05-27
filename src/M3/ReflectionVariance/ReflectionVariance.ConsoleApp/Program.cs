@@ -11,6 +11,8 @@ namespace ReflectionVariance.ConsoleApp
             ReflectionSamples.Execute();
 
             VarianceSamples.Execute();
+
+            CovarianceSamples.Execute();
         }
     }
 
