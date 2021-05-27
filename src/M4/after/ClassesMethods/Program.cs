@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BasicDefinitions;
+using CodeProjectCache;
+using Generic.Commands;
 
 namespace ClassesMethods
 {
@@ -25,6 +28,12 @@ namespace ClassesMethods
             var cachedResult2 = Cache.Global.Get(message2key);
             Console.WriteLine(cachedResult2);
 
+            // working with generics that have a generic base class
+            string[] inputs = { "Follow ", "Steve ", "on ", "Pluralsight.com ", "to ", "get ", "updates!" };
+            ICommand c = new ConcatCommand(inputs); // can replace with ICommand<string>
+            string results = (string)c.Execute();   // which eliminates the cast here
+            Console.WriteLine(results);
+
             // extension methods -- cover in methods section
             Console.WriteLine($"Is message not empty? {message.ToArray().WhereNotEmpty()}");
             Console.WriteLine($"Is message default? {message.IsDefault()}");
@@ -38,97 +47,10 @@ namespace ClassesMethods
             // static data access - not recommended typically
             IEnumerable<Customer> customers = DataAccess<Customer>.List();
 
-
+            var r = new ResultClosed<string>(); // T is string even though its base class T is int
         }
     }
 
-    // Cache<T>
-    // https://www.codeproject.com/Articles/1033606/Cache-T-A-threadsafe-Simple-Efficient-Generic-In-m
-
-    public class Cache<TKey, TObject> // TODO: IDisposable
-    {
-        private Dictionary<TKey, TObject> _cache = new();
-        // omitted: timers and locking. See original source for real code
-
-        public void AddOrUpdate(TKey key, TObject itemToCache)
-        {
-            if (_cache.ContainsKey(key))
-            {
-                _cache[key] = itemToCache;
-            }
-            else
-            {
-                _cache.Add(key, itemToCache);
-            }
-        }
-
-        public TObject Get(TKey key)
-        {
-            if (_cache.ContainsKey(key))
-            {
-                return _cache[key];
-            }
-            return default(TObject);
-        }
-    }
-
-    // non-generic class inherits from generic
-    // can have as many instances as desired, or use a global one
-    public class Cache : Cache<string, object>
-    {
-        private static Lazy<Cache> _globalCache = new Lazy<Cache>();
-        public static Cache Global => _globalCache.Value;
-    }
-
-    // extension methods
-    public static class GenericExtensions
-    {
-        // confirm a sequence is not empty
-        public static bool WhereNotEmpty<T> (this IEnumerable<T> source)
-        {
-            return source.Any(); // LINQ is basically a collection of these kinds of methods
-        }
-
-        // see if any instance is its default
-        public static bool IsDefault<T>(this T input) where T:IEquatable<T>
-        {
-            return input.Equals(default(T));
-        }
-        
-    }
-
-
-
-    // https://stackoverflow.com/a/2686133/13729
-    // better type inference
-    public static class Converter
-    {
-        public static TOut Convert<TIn, TOut>(TIn input) where TOut : class
-        {
-            return null;
-        }
-    }
-
-    public static class ConvertTo<TOut> where TOut : class
-    {
-        public static TOut Convert<TIn>(TIn intput)
-        {
-            return null;
-        }
-    }
-
-
-
-    // generic static classes
-    public abstract class BaseEntity { };
-    public class Customer : BaseEntity { }
-    public static class DataAccess<T> where T : BaseEntity
-    {
-        public static IEnumerable<T> List()
-        {
-            return new List<T>();
-        }
-    }
 
 
 
