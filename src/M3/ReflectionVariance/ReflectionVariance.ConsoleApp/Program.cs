@@ -8,11 +8,12 @@ namespace ReflectionVariance.ConsoleApp
         {
             Console.WriteLine("Reflection and Variance with @ardalis!");
 
-            ReflectionSamples.Execute();
+            //ReflectionSamples.Execute();
 
-            VarianceSamples.Execute();
+            //VarianceSamples.Execute();
 
-            CovarianceSamples.Execute();
+            // CovarianceSamples.Execute();
+            ContravarianceSamples.Execute();
         }
     }
 

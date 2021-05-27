@@ -2,6 +2,7 @@ using System;
 
 namespace ReflectionVariance.ConsoleApp
 {
+    // these are just code samples used to create slides
     internal class CovarianceSamples
     {
         internal static void Execute()
