@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Ardalis.GuardClauses;
 
 namespace Generic.Commands
 {
@@ -17,21 +18,20 @@ namespace Generic.Commands
 
     public class Command : ICommand
     {
-        private Func<ICommand, object> _execFunc = null;
-        protected Func<ICommand, object> ExecFunc { get { return _execFunc; } }
+        protected Func<ICommand, object> ExecFunc { get; }
 
         public object Execute()
         {
-            return _execFunc(this);
+            return ExecFunc(this);
         }
 
         public Command(Func<ICommand, object> execFunc)
         {
-            if (execFunc == null) throw new ArgumentNullException("execFunc");
-            _execFunc = execFunc;
+            ExecFunc = Guard.Against.Null(execFunc, nameof(execFunc));
         }
     }
 
+    // generic class inherits from non-generic
     public class Command<TResult> : Command, ICommand<TResult> where TResult : class
     {
         new protected Func<ICommand<TResult>, TResult> ExecFunc => (ICommand<TResult> cmd) => (TResult)base.ExecFunc(cmd);
@@ -46,16 +46,24 @@ namespace Generic.Commands
         }
     }
 
+    public class CollectCommand : Command
+    {
+        public IEnumerable<object> Inputs { get; }
+        public CollectCommand(IEnumerable<object> inputs) :
+            base((ICommand c) => new List<object>(((CollectCommand)c).Inputs))
+        {
+            Inputs = Guard.Against.Null(inputs, nameof(inputs));
+        }
+    }
+
     public class ConcatCommand : Command<string>
     {
-        private IEnumerable<string> _inputs;
-        public IEnumerable<String> Inputs => _inputs;
+        public IEnumerable<String> Inputs { get; }
 
         public ConcatCommand(IEnumerable<String> inputs) :
             base((ICommand<string> c) => (string)String.Concat(((ConcatCommand)c).Inputs))
         {
-            if (inputs == null) throw new ArgumentNullException("inputs");
-            _inputs = inputs;
+            Inputs = Guard.Against.Null(inputs, nameof(inputs));
         }
     }
 }

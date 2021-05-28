@@ -4,6 +4,7 @@ using System.Collections.Generic;
 namespace CodeProjectCache
 {
     // Cache<T>
+    // Original source (with more features and better safety)
     // https://www.codeproject.com/Articles/1033606/Cache-T-A-threadsafe-Simple-Efficient-Generic-In-m
 
     public class Cache<TKey, TObject> // TODO: IDisposable
@@ -38,6 +39,6 @@ namespace CodeProjectCache
     public class Cache : Cache<string, object>
     {
         private static Lazy<Cache> _globalCache = new Lazy<Cache>();
-        public static Cache Global => _globalCache.Value;
+        public static Cache Global => _globalCache.Value; // simple Singleton pattern
     }
 }
