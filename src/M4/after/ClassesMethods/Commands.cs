@@ -1,7 +1,6 @@
 // Sample from https://stackoverflow.com/a/52884586/13729
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Ardalis.GuardClauses;
 
 namespace Generic.Commands
@@ -16,6 +15,17 @@ namespace Generic.Commands
         new TResult Execute();
     }
 
+
+
+
+
+
+
+
+
+
+
+    // concrete Command class implements non-generic interface
     public class Command : ICommand
     {
         protected Func<ICommand, object> ExecFunc { get; }
@@ -31,6 +41,12 @@ namespace Generic.Commands
         }
     }
 
+
+
+
+
+
+
     // generic class inherits from non-generic
     public class Command<TResult> : Command, ICommand<TResult> where TResult : class
     {
@@ -41,20 +57,17 @@ namespace Generic.Commands
             return ExecFunc(this);
         }
 
-        public Command(Func<ICommand<TResult>, TResult> execFunc) : base((ICommand c) => (object)execFunc((ICommand<TResult>)c))
+        public Command(Func<ICommand<TResult>, TResult> execFunc) :
+            base((ICommand c) => (object)execFunc((ICommand<TResult>)c))
         {
         }
     }
 
-    public class CollectCommand : Command
-    {
-        public IEnumerable<object> Inputs { get; }
-        public CollectCommand(IEnumerable<object> inputs) :
-            base((ICommand c) => new List<object>(((CollectCommand)c).Inputs))
-        {
-            Inputs = Guard.Against.Null(inputs, nameof(inputs));
-        }
-    }
+
+
+
+
+
 
     public class ConcatCommand : Command<string>
     {
@@ -62,6 +75,26 @@ namespace Generic.Commands
 
         public ConcatCommand(IEnumerable<String> inputs) :
             base((ICommand<string> c) => (string)String.Concat(((ConcatCommand)c).Inputs))
+        {
+            Inputs = Guard.Against.Null(inputs, nameof(inputs));
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+    public class CollectCommand : Command
+    {
+        public IEnumerable<object> Inputs { get; }
+        public CollectCommand(IEnumerable<object> inputs) :
+            base((ICommand c) => new List<object>(((CollectCommand)c).Inputs))
         {
             Inputs = Guard.Against.Null(inputs, nameof(inputs));
         }

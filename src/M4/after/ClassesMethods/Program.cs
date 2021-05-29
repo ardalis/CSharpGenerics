@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BasicDefinitions;
 using CodeProjectCache;
+using Counter;
 using Generic.Commands;
 
 namespace ClassesMethods
@@ -17,24 +18,24 @@ namespace ClassesMethods
             var r = new ResultFromClosed<string>(); // T is string even though its base class T is int
 
 
-
-
-
-
             // non-static generic classes
             // cache<T>
-            string message = "Generics are fun!";
-            var cache = new Cache<string, string>(); // per instance
-            string key = "fun-message";
-            cache.AddOrUpdate(key, message);
-            var cachedResult = cache.Get(key);
-            Console.WriteLine(cachedResult);
+            // string message = "Generics are fun!";
+            // var cache = new Cache<string, string>(); // per instance (thus per key/value type combination)
+            // string key = "fun-message";
+            // cache.AddOrUpdate(key, message);
+            // string cachedResult = cache.Get(key);
+            // Console.WriteLine(cachedResult);
 
-            string message2 = "Lazy loading is fun, too.";
-            string message2key = "lazy-message";
-            Cache.Global.AddOrUpdate(message2key, message2); // essentially as singleton
-            var cachedResult2 = Cache.Global.Get(message2key);
-            Console.WriteLine(cachedResult2);
+            // string message2 = "Lazy loading is fun, too.";
+            // string message2key = "lazy-message";
+            // Cache.Global.AddOrUpdate(message2key, message2); // essentially as singleton
+            // object cachedResult2 = Cache.Global.Get(message2key); // note: no strong typing
+            // Console.WriteLine(cachedResult2);
+
+
+
+
 
 
 
@@ -42,16 +43,52 @@ namespace ClassesMethods
 
             // working with generics that have a generic base class and non-generic analogs
             string[] inputs = { "Follow ", "Steve ", "on ", "Pluralsight.com ", "to ", "get ", "updates!" };
-            ICommand c = new ConcatCommand(inputs); // can replace with ICommand<string>
-            string results = (string)c.Execute();   // which eliminates the cast here
+            ICommand<string> c = new ConcatCommand(inputs); // can replace with ICommand<string>
+            string results = c.Execute();   // which eliminates the cast here
             Console.WriteLine(results);
+
+
+
+
+
+
+
+
+
+
+
+
+            // counters -- these are not threadsafe
+            BaseClass.GlobalCounter += 10;
+            Generic<int>.Counter += 5;
+            Generic<string>.Counter += 7;
+
+            Console.WriteLine($"Counts: {BaseClass.GlobalCounter} {Generic<int>.Counter} {Generic<string>.Counter}");
+
+            Generic<int>.GlobalCounter += 5;
+            Generic<string>.GlobalCounter += 5;
+            Console.WriteLine($"Counts: {BaseClass.GlobalCounter} {Generic<int>.Counter} {Generic<string>.Counter}");
+
+            var intInstance = new Generic<int>();
+            intInstance.AnotherCounter++;
+            Console.WriteLine($"Counts: {BaseClass.GlobalCounter} {Generic<int>.Counter} {Generic<string>.Counter}");
+            intInstance.LocalCounter++;
+            var stringInstance = new Generic<string>();
+            stringInstance.LocalCounter++;
+            Console.WriteLine($"Counts: int: {intInstance.LocalCounter} string: {stringInstance.LocalCounter}");
+
+
+
+
+
+
 
             // using the non-generic command with just objects
             var stuff = new Object[] { 1, "hey", 4.3 };
             var collectCommand = new CollectCommand(stuff);
             var collectResult = (List<object>)collectCommand.Execute();
-            Console.WriteLine(String.Join(',',collectResult
-                                                .Select(o => o.ToString()).ToArray()));
+            // Console.WriteLine(String.Join(',', collectResult
+            //                                     .Select(o => o.ToString()).ToArray()));
 
 
             // static classes/methods
@@ -65,9 +102,10 @@ namespace ClassesMethods
 
 
             // extension methods -- cover in methods section
-            Console.WriteLine($"Is message not empty? {message.ToArray().WhereNotEmpty()}");
-            Console.WriteLine($"Is message default? {message.IsDefault()}");
-            Console.WriteLine($"Is 0 default? {0.IsDefault()}");
+            string someMessage = "";
+            // Console.WriteLine($"Is message not empty? {someMessage.ToArray().WhereNotEmpty()}");
+            // Console.WriteLine($"Is message default? {someMessage.IsDefault()}");
+            // Console.WriteLine($"Is 0 default? {0.IsDefault()}");
 
 
             // static data access - not recommended typically
