@@ -19,6 +19,19 @@ namespace ClassesMethods
             return input.Equals(default(T));
         }
 
+        public static T Default<T>(this T input)
+        {
+            return default(T);
+        }
+
+        // swap any struct type with another of the same type
+        public static void Swap<T>(this ref T input, ref T other) where T : struct
+        {
+            T temporary = input;
+            input = other;
+            other = temporary;
+        }
+
     }
 
 }

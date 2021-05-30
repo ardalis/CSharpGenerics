@@ -94,7 +94,7 @@ namespace ClassesMethods
             // static classes/methods
             //string result = Converter.Convert("input"); // type arguments cannot be inferred
             string result0 = Converter.Convert<string, string>("input"); // must specify every type
-            string result = ConvertTo<string>.Convert("input"); // only need to specify input type
+            string result = ConvertTo<string>.Convert("input"); // only need to specify output type
 
 
 
@@ -103,14 +103,35 @@ namespace ClassesMethods
 
             // extension methods -- cover in methods section
             string someMessage = "";
-            // Console.WriteLine($"Is message not empty? {someMessage.ToArray().WhereNotEmpty()}");
-            // Console.WriteLine($"Is message default? {someMessage.IsDefault()}");
-            // Console.WriteLine($"Is 0 default? {0.IsDefault()}");
+            Console.WriteLine($"Is message not empty? {someMessage.ToArray().WhereNotEmpty()}");
+            Console.WriteLine($"Is message default? {someMessage.IsDefault()}");
+            Console.WriteLine($"Is 0 default? {0.IsDefault()}");
+
+            // swap - extension method
+            int a = 1;
+            int b = 2;
+            a.Swap<int>(ref b); // specify type
+            Console.WriteLine($"a: {a},b: {b}");
+            a.Swap(ref b); // type inferred by argument
+            // a and b should be back to original values
+            Console.WriteLine($"a: {a},b: {b}");
+
+            // swap strings
+            string one = "one";
+            string two = "two";
+            // one.Swap(ref two); // Error - not a struct
 
 
             // static data access - not recommended typically
             IEnumerable<Customer> customers = DataAccess<Customer>.List();
 
+        }
+
+        public static void Swap<T>(ref T a, ref T b)
+        {
+            T temp = a;
+            a = b;
+            b = temp;
         }
     }
 
