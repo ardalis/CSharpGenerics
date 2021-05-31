@@ -11,6 +11,64 @@ namespace ClassesMethods
         {
             Console.WriteLine("Generic Events and Delegates");
 
+            //Delegates.DelegateRunner.Execute();
+            BuiltinDelegates.DelegateRunner.Execute();
+            return;
+
+            // int count = 0;
+            // var authorRepo = new Repository<Author>();
+            // authorRepo.EntityAdded += Repo_EntityAdded;
+            // authorRepo.EntityAdded += (o,e) => count++;
+            // authorRepo.Add(new Author("Steve", "Smith"));
+            // Console.WriteLine($"{count} authors added.");
+
+            // use data loaders
+            var authorRepo = new Repository<Author>();
+            var courseRepo = new Repository<Course>();
+
+            var authorLoader = new DataLoader<Author>(authorRepo);
+            var courseLoader = new DataLoader<Course>(courseRepo);
+
+            authorLoader.Load(Authors());
+            Console.WriteLine($"Loaded {authorLoader.Counter} authors.");
+            courseLoader.Load(Courses());
+            Console.WriteLine($"Loaded {courseLoader.Counter} courses.");
+
+            // print them all
+            Console.WriteLine("Listing all authors:");
+            var authors = authorRepo.List();
+            foreach (var author in authors)
+            {
+                Console.WriteLine(author);
+            }
+            Console.WriteLine("Listing all courses:");
+            var courses = courseRepo.List();
+            foreach (var course in courses)
+            {
+                Console.WriteLine(course);
+            }
+
+        }
+        private static void Repo_EntityAdded(object sender, EntityAddedEventArgs<Author> args)
+        {
+            Console.WriteLine($"Author added: {args.EntityAdded} (via Program.cs) by {sender}");
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+        static void Main2(string[] args)
+        {
+            Console.WriteLine("Generic Events and Delegates");
+
             LoadData(new[] { typeof(Author), typeof(Course) });
 
             var authorRepo = new Repository<Author>();
@@ -36,6 +94,8 @@ namespace ClassesMethods
             }
         }
 
+
+
         private static void LoadData(Type[] types)
         {
             var loaderType = typeof(DataLoader<>);
@@ -47,8 +107,6 @@ namespace ClassesMethods
 
                 var loaderConstructed = loaderType.MakeGenericType(new[] { type });
                 dynamic loaderInstance = Activator.CreateInstance(loaderConstructed, repoInstance);
-
-                //var loadMethod = loaderConstructed.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).FirstOrDefault(method => method.Name == "Load");
 
                 // could also use reflection for this
                 if (type.Name == "Author")
@@ -64,10 +122,6 @@ namespace ClassesMethods
             }
         }
 
-        private static void Repo_EntityAdded(object sender, Author e)
-        {
-            Console.WriteLine($"Author added: {e} (via Program.cs)");
-        }
 
         public static IEnumerable<Author> Authors()
         {

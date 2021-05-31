@@ -15,7 +15,7 @@ namespace ClassesMethods
 
         public int Counter => counter;
 
-        private void _repo_EntityAdded(object sender, T e)
+        private void _repo_EntityAdded(object sender, EntityAddedEventArgs<T> args)
         {
             counter++;
         }
