@@ -12,6 +12,7 @@ namespace BuiltinDelegates
     {
         // define an instance of the delegate (defaulting to null)
         public Operation<T> Add;
+
         private readonly Predicate<T> _predicate;
         private List<T> _args = new();
 
@@ -25,9 +26,9 @@ namespace BuiltinDelegates
         public T Sum()
         {
             T total = default(T);
-            foreach (var arg in _args)
+            foreach(var arg in _args)
             {
-                if (_predicate(arg))
+                if(_predicate(arg))
                 {
                     total = Add(total, arg);
                 }
@@ -46,9 +47,34 @@ namespace BuiltinDelegates
         public static void Execute()
         {
             var input = new[] { 10, 1200, 20, 2000 };
-            var instance = new NewMath<int>(input, (a,b) => a+b, Big);
+            var instance = new NewMath<int>(input, (a, b) => a + b, Big);
 
-            Console.WriteLine($"NewMath sum of filtered inputs is {instance.Sum()}");
+            Console.WriteLine($"NewMath filtered sum is  {instance.Sum()}");
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //Predicate<int> predicate = Big;
+        //Foo(Big);
+        //Foo(predicate);
+
+        public static void Foo(Predicate<int> predicate)
+        {
+            // how to convert
+            // _args.Where(_predicate); ERROR cannot convert from Predicate to Func<int,bool>
+            Predicate<int> big = x => x > 1000;
+            Func<int, bool> FuncBig = new Func<int, bool>(big);
         }
     }
 }
